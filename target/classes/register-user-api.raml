@@ -1,0 +1,16 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/145dcebb-cc67-4f49-abc1-74c05e9ead25 # 
+title: Register User API
+
+/login:
+  post:
+    body: 
+      application/json:
+        example: 
+          {"username": "tumama", "password": "fuemia"}
+    responses: 
+      200:
+        body: 
+          application/json:
+            example: 
+              {"message": "login succesfull"}
