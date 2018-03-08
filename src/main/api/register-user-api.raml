@@ -14,3 +14,30 @@ title: Register User API
           application/json:
             example: 
               {"message": "login succesfull"}
+/users:
+  post:
+    body: 
+      application/json:
+        example: 
+          {"username": "tumama", "password": "fuemia", "email": "email@domain.com"}
+    responses: 
+      201:
+        body: 
+          application/json:
+            example: 
+              {"message": "your user was successfully created"}
+      409:
+        body: 
+          application/json:
+            example:
+              userExists: 
+                {"message": "the user name already exists"}
+              emailExists: 
+                {"message": "the email already exists"}
+
+      400:
+        body: 
+          application/json:
+            example:
+              {"message": "the message is badly formed"}
+      
