@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry exported="true" kind="con" path="MULE_RUNTIME/org.mule.tooling.server.3.9.0.ee"/>
+	<classpathentry exported="true" kind="lib" path="C:/Dev/Sabre/postgresql-42.2.1.jar"/>
 	<classpathentry kind="src" path="src/main/app"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
@@ -10,5 +11,6 @@
 	<classpathentry kind="src" path="src/main/api"/>
 	<classpathentry kind="src" path="src/main/wsdl"/>
 	<classpathentry kind="src" path="src/test/munit"/>
+	<classpathentry kind="con" path="MULE_LIB/Amazon SQS/org.mule.tooling.ui.contribution.sqs.3.5.0"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
