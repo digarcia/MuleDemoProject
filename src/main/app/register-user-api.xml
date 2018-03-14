@@ -27,17 +27,22 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <logger message="#[payload]" level="INFO" doc:name="Logger"/>
         <validation:all doc:name="Validation">
             <validation:validations>
-                <validation:is-email email="#[payload.email]" message="The email is required"/>
-                <validation:is-not-empty value="#[payload.email]" message="The email is invalid"/>
-                <validation:is-not-empty value="#[payload.password]" message="the password is required"/>
-                <validation:is-not-empty value="#[payload.username]" message="The user name is required"/>
+                <validation:is-email email="#[payload.email]" message="The email is required" exceptionClass="org.mule.module.apikit.exception.BadRequestException"/>
+                <validation:is-not-empty value="#[payload.password]" message="the password is required" exceptionClass="org.mule.module.apikit.exception.BadRequestException"/>
+                <validation:is-not-empty value="#[payload.email]" message="The email is invalid" exceptionClass="org.mule.module.apikit.exception.BadRequestException"/>
+                <validation:is-not-empty value="#[payload.username]" message="The user name is required" exceptionClass="exceptions.CustomBadRequestException"/>
             </validation:validations>
         </validation:all>
+        <set-variable variableName="user" value="#[payload]" doc:name="Set user"/>
         <db:select config-ref="Generic_Database_Configuration" doc:name="Database">
             <db:parameterized-query><![CDATA[select * from users  where email = #[payload.email] or username = #[payload.username];]]></db:parameterized-query>
         </db:select>
         <logger level="INFO" doc:name="Logger" message="#[payload]"/>
-        <validation:validate-size message="fallo" exceptionClass="com.mulesoft.module.client.exception.UnauthorizedException" doc:name="Validation" max="0" min="0" value="#[payload]"/>
+        <validation:validate-size message="The user already exists" exceptionClass="exceptions.ConflictException" doc:name="Validation" max="0" min="0" value="#[payload]"/>
+        <logger message="#[flowVars.user]" level="INFO" doc:name="Logger"/>
+        <db:insert config-ref="Generic_Database_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into users values ((select max(user_id) from users) +1,2,#[flowVars.user.username],#[flowVars.user.password],#[flowVars.user.email]);]]></db:parameterized-query>
+        </db:insert>
 
         <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
         <set-payload value="{&#xA;&quot;message&quot; : &quot;your user was successfully created&quot;&#xA;}" doc:name="Set Payload"/>
@@ -64,7 +69,8 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
             <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
         </apikit:mapping>
         <apikit:mapping statusCode="400">
-            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <apikit:exception value="exceptions.CustomBadRequestException"/>
+
             <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
             <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
         </apikit:mapping>
@@ -72,6 +78,11 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
             <apikit:exception value="com.mulesoft.module.client.exception.UnauthorizedException" />
             <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
             <set-payload value="{ &quot;message&quot;: &quot;unauthorized&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="409">
+            <apikit:exception value="exceptions.ConflictException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;User exists&quot; }" doc:name="Set Payload"/>
         </apikit:mapping>
     </apikit:mapping-exception-strategy>
 </mule>
